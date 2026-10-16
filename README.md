@@ -61,3 +61,82 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 ```
+
+---
+
+## 🚀 Menjalankan API Prediksi Secara Lokal
+
+API Flask menyediakan endpoint `POST /predict` untuk memprediksi angka harapan hidup. Panduan ini menjalankan API di komputer lokal; alamat `127.0.0.1` **belum** membuat aplikasi dapat diakses melalui internet.
+
+### 1. Siapkan environment dan dependensi
+
+Buka Command Prompt di folder proyek, lalu jalankan:
+
+```cmd
+cd /d "C:\Users\X\Jupyter\Machine Learning Praktikum"
+py -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install pandas numpy seaborn matplotlib scikit-learn joblib Flask
+```
+
+Jika folder `.venv` sudah ada, lewati perintah `py -m venv .venv`. Pastikan notebook dan API menggunakan interpreter `.venv` yang sama.
+
+### 2. Latih model dan simpan artefak
+
+Buka `Life Expectancy.ipynb` di VS Code, pilih kernel `.venv`, lalu pilih **Restart Kernel and Run All**. Setelah sel training dan evaluasi dijalankan, sel terakhir menyimpan dua file berikut di folder proyek:
+
+- `best_life_expectancy_model.joblib`
+- `best_life_expectancy_scaler.joblib`
+
+API memerlukan kedua file tersebut. Jika salah satu tidak ditemukan, jalankan notebook terlebih dahulu.
+
+### 3. Jalankan server API
+
+Di Command Prompt pertama, jalankan:
+
+```cmd
+cd /d "C:\Users\X\Jupyter\Machine Learning Praktikum"
+.\.venv\Scripts\python.exe testing_deploy.py
+```
+
+Server berjalan pada `http://127.0.0.1:5000`. Biarkan jendela ini tetap terbuka selama API digunakan. Peringatan Flask bahwa server ini adalah development server normal untuk pengujian lokal, tetapi server ini tidak ditujukan untuk produksi.
+
+### 4. Kirim data dan verifikasi prediksi
+
+Buka Command Prompt kedua di folder proyek dan jalankan:
+
+```cmd
+cd /d "C:\Users\X\Jupyter\Machine Learning Praktikum"
+curl.exe -i -X POST "http://127.0.0.1:5000/predict" -H "Content-Type: application/json" --data-binary "@data.json"
+```
+
+Jika berhasil, respons memuat status `HTTP/1.1 200 OK` dan prediksi, misalnya:
+
+```json
+{ "prediction": [75.0] }
+```
+
+`data.json` harus memiliki properti `data` yang berisi satu atau lebih baris; setiap baris harus berisi 20 nilai numerik dengan urutan fitur berikut:
+
+1. `Year`
+2. `Status` (hasil encoding: `Developed` = `0`, `Developing` = `1`)
+3. `Adult Mortality`
+4. `infant deaths`
+5. `Alcohol`
+6. `percentage expenditure`
+7. `Hepatitis B`
+8. `Measles`
+9. `BMI`
+10. `under-five deaths`
+11. `Polio`
+12. `Total expenditure`
+13. `Diphtheria`
+14. `HIV/AIDS`
+15. `GDP`
+16. `Population`
+17. `thinness  1-19 years`
+18. `thinness 5-9 years`
+19. `Income composition of resources`
+20. `Schooling`
+
+API menerapkan scaler yang disimpan dari notebook sebelum menjalankan prediksi. Untuk menghentikan server, tekan `Ctrl+C` di Command Prompt pertama.
